@@ -1668,13 +1668,6 @@ exports[`create ci targets replaceTargetNameWithOptions should replace test in d
         "gradle",
       ],
     },
-    "options": {
-      "__unparsed__": [],
-      "args": [
-        "--exclude-task",
-        "test",
-      ],
-    },
     "parallelism": false,
   },
   "test-ci--LinkedList2Test": {
@@ -1696,13 +1689,6 @@ exports[`create ci targets replaceTargetNameWithOptions should replace test in d
       },
       "technologies": [
         "gradle",
-      ],
-    },
-    "options": {
-      "__unparsed__": [],
-      "args": [
-        "--exclude-task",
-        "test",
       ],
     },
     "outputs": [
@@ -1731,13 +1717,6 @@ exports[`create ci targets replaceTargetNameWithOptions should replace test in d
       },
       "technologies": [
         "gradle",
-      ],
-    },
-    "options": {
-      "__unparsed__": [],
-      "args": [
-        "--exclude-task",
-        "test",
       ],
     },
     "outputs": [

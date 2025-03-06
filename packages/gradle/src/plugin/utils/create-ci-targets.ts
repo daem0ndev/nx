@@ -16,24 +16,7 @@ export function replaceTargetNameWithOptions(
   // rename target name if it is provided
   Object.entries(targets).forEach(([taskName, target]) => {
     let targetName = options?.[`${taskName}TargetName`] as string;
-    if (taskName.startsWith('ci')) {
-      if (options.ciTargetName) {
-        targetName = taskName.replace('ci', options.ciTargetName);
-        targetsWithReplacedName[targetName] = target;
-        if (targetName === options.ciTargetName) {
-          target.metadata.nonAtomizedTarget = options.testTargetName;
-          target.dependsOn.forEach((dep) => {
-            if (typeof dep !== 'string' && dep.target.startsWith('ci')) {
-              dep.target = dep.target.replace('ci', options.ciTargetName);
-            }
-          });
-        }
-      }
-    } else if (targetName) {
-      targetsWithReplacedName[targetName] = target;
-    } else {
-      targetsWithReplacedName[taskName] = target;
-    }
+
     // if is it CI, replace target test with ci in dependsOn and exclude test in each command
     if (
       isCI() &&
@@ -67,6 +50,44 @@ export function replaceTargetNameWithOptions(
         target.options ??= { __unparsed__: [] };
         target.options.args = ['--exclude-task', 'test'];
       }
+    }
+
+    // change executor to gradlew if it is batch mode
+    if (
+      process.env.NX_BATCH_MODE === 'true' &&
+      target.command?.includes('gradlew')
+    ) {
+      target = {
+        executor: '@nx/gradle:gradlew',
+        options: {
+          ...target,
+          __unparsed__: [],
+        },
+        dependsOn: [...(target.dependsOn ?? [])],
+        metadata: { ...target.metadata },
+        inputs: target.inputs,
+        outputs: target.outputs,
+        cache: true,
+      };
+    }
+
+    if (taskName.startsWith('ci')) {
+      if (options.ciTargetName) {
+        targetName = taskName.replace('ci', options.ciTargetName);
+        targetsWithReplacedName[targetName] = target;
+        if (targetName === options.ciTargetName) {
+          target.metadata.nonAtomizedTarget = options.testTargetName;
+          target.dependsOn.forEach((dep) => {
+            if (typeof dep !== 'string' && dep.target.startsWith('ci')) {
+              dep.target = dep.target.replace('ci', options.ciTargetName);
+            }
+          });
+        }
+      }
+    } else if (targetName) {
+      targetsWithReplacedName[targetName] = target;
+    } else {
+      targetsWithReplacedName[taskName] = target;
     }
   });
   return targetsWithReplacedName;
