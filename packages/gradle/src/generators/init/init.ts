@@ -93,26 +93,6 @@ function addCreateNodesPluginToBuildGradle(
     buildGradleContent = tree.read(gradleFilePath).toString();
   }
 
-  const applyNodesPlugin = `plugin("${nativePluginName}")`;
-  if (buildGradleContent.includes('allprojects {')) {
-    if (!buildGradleContent.includes(applyNodesPlugin)) {
-      logger.warn(
-        `Please add the ${nativePluginName} plugin to your ${gradleFilePath}:
-allprojects {
-  apply {
-      ${applyNodesPlugin}
-  }
-}`
-      );
-    }
-  } else {
-    buildGradleContent = `${buildGradleContent}\n\rallprojects {
-    apply {
-        ${applyNodesPlugin}
-    }
-  }`;
-  }
-
   const nodesPlugin = filename.endsWith('.kts')
     ? `id("${nativePluginName}") version("+")`
     : `id "${nativePluginName}" version "+"`;
@@ -128,6 +108,29 @@ allprojects {
     buildGradleContent = `plugins {
     ${nodesPlugin}
 }\n\r${buildGradleContent}`;
+  }
+
+  const applyNodesPlugin = `plugin("${nativePluginName}")`;
+  if (buildGradleContent.includes('allprojects {')) {
+    if (
+      !buildGradleContent.includes(`plugin("${nativePluginName}")`) &&
+      !buildGradleContent.includes(`plugin('${nativePluginName}')`)
+    ) {
+      logger.warn(
+        `Please add the ${nativePluginName} plugin to your ${gradleFilePath}:
+allprojects {
+  apply {
+      ${applyNodesPlugin}
+  }
+}`
+      );
+    }
+  } else {
+    buildGradleContent = `${buildGradleContent}\n\rallprojects {
+    apply {
+        ${applyNodesPlugin}
+    }
+  }`;
   }
 
   tree.write(gradleFilePath, buildGradleContent);
