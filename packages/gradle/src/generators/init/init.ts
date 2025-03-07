@@ -129,6 +129,8 @@ allprojects {
     ${nodesPlugin}
 }\n\r${buildGradleContent}`;
   }
+
+  tree.write(gradleFilePath, buildGradleContent);
 }
 
 export function updateNxJsonConfiguration(tree: Tree) {
