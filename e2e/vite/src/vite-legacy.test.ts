@@ -346,18 +346,30 @@ export default App;
       cleanupProject();
     });
 
-    it('should build app from libs source', () => {
-      const results = runCLI(`build ${app} --buildLibsFromSource=true`);
-      expect(results).toContain('Successfully ran target build for project');
-      // this should be more modules than build from dist
-      expect(results).toContain('38 modules transformed');
-    });
+    it('should build app from libs source and dist', () => {
+      const getModulesTransformed = (output: string) => {
+        const match = output.match(/(\d+) modules transformed/);
+        return match ? parseInt(match[1], 10) : null;
+      };
 
-    it('should build app from libs dist', () => {
-      const results = runCLI(`build ${app} --buildLibsFromSource=false`);
-      expect(results).toContain('Successfully ran target build for project');
-      // this should be less modules than building from source
-      expect(results).toContain('36 modules transformed');
+      const modulesFromSourceResult = runCLI(
+        `build ${app} --buildLibsFromSource=true`
+      );
+      const modulesFromDistResult = runCLI(
+        `build ${app} --buildLibsFromSource=false`
+      );
+
+      const modulesFromSource = getModulesTransformed(modulesFromSourceResult);
+      const modulesFromDist = getModulesTransformed(modulesFromDistResult);
+
+      expect(modulesFromSourceResult).toContain(
+        'Successfully ran target build for project'
+      );
+      expect(modulesFromDistResult).toContain(
+        'Successfully ran target build for project'
+      );
+      // this should be more modules than build from dist
+      expect(modulesFromSource).toBeGreaterThan(modulesFromDist);
     });
 
     it('should build app from libs without package.json in lib', () => {
